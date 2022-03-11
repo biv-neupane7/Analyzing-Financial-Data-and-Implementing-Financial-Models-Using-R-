@@ -284,5 +284,143 @@ tail(data_amzn)
 
 
 
+############### 1.4.11 Converting to Weekly Prices #########################
+
+wk<- data_amzn
+head.tail(to.weekly(wk))
+
+## The reason we use a shorter dataset name like wk is because to.weekly() 
+## uses the dataset name as the prefix when it renames the column header.
+
+
+# If you wanna extract the 2nd week from the weekly price data
+
+to.weekly(wk)[2] #Check out the Volume that was 14614300 at the end of 2nd week
+
+# Lets confirm this by getting the result for volume at the end of 2nd week
+# through a different method:
+
+head(data_amzn)
+sum(data_amzn[3:7,5])
+
+## As we can see from the result in the console, the volume matches
+
+
+
+
+##################### 1.4.12 Converting to Monthly Prices ##################
+
+
+mo<- data_amzn
+
+head(to.monthly(mo))
+
+###########################################################################
+
+ls()
+
+
+rm(list=ls()) # Warning: Clears the environment
+
+##########################################################################
+
+## let us suppose we made an investment in Amazon (AMZN),
+## Alphabet (GOOG), Apple (AAPL), and S&P 500 ETF (SPY) on December 31,2014. 
+## How would we know how these investments performed through the end of
+## 2019 and which of these investments performed better over that period?
+
+
+getwd() # Check the working directory
+
+# Step 1: Loading the required data
+
+data_amzn<- load.data("AMZN.csv", "AMZN")
+data_gog<- load.data("GOOG.csv","GOOG")
+data_spy<- load.data("SPY.csv","SPY")
+data_apple<- load.data("AAPL.csv","AAPL")
+
+
+# Step 2: Combine Close Prices of All Securities into One Dataset
+
+data_close<- cbind(data_amzn$AMZN.Close, data_gog$GOOG.Close,
+                   data_spy$SPY.Close, data_apple$AAPL.Close)
+
+names(data_close)<- c("AMZN","GOOG","SPY","AAPL") # used to rename the variables
+
+head.tail(data_close) 
+
+## using cbind() here works seamlessly as these securities have the same
+## number of observations.
+
+
+
+
+## Step 3: Normalize Prices
+
+## The starting prices of the different securities are not the
+## same. For example, AAPL starts at $110.38, while GOOG starts at $524.96. 
+## This makes it hard to compare how well the different securities performed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
