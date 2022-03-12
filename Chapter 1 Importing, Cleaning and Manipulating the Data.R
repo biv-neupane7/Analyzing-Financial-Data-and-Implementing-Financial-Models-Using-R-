@@ -332,6 +332,44 @@ rm(list=ls()) # Warning: Clears the environment
 
 getwd() # Check the working directory
 
+
+load.data<- function(rawdata, ticker){
+  data_raw<- read.csv(rawdata, header=T) #reading the data
+  Date<- as.Date(data_raw$Date, format="%Y-%m-%d") # changing the date format
+  data_raw<- cbind(Date, data_raw[,-1]) #Concatenating the Date and data_raw df
+                                    # after removing the original date column
+                                      # in the data_raw dataset
+  data_raw<- data_raw[order(data_raw$Date),] # We want all the rows to be 
+                                                # ordered by Date 
+  data_raw<- xts(data_raw[,2:7], order.by=data_raw$Date) # Changing the type
+                                                  # to a xts object
+  A<- paste(ticker, ".Open", sep="")
+  B<- paste(ticker, ".High", sep="")
+  C<- paste(ticker, ".Low", sep="")
+  D<- paste(ticker, ".Close", sep="")
+  E<- paste(ticker, ".Adjusted", sep="")
+  F<- paste(ticker, ".Volume", sep="")
+  
+  names(data_raw)<- paste(c(A, B,C, D,E,F))
+  data_raw<- cbind(data_raw[,1:4], data_raw[,6], data_raw[,5])
+  return(data_raw)
+  
+}
+
+
+
+## Another function that we shall write is for the code that will show 
+## top 3 lines of the df and bottom 3 lines of df
+
+
+head.tail<- function(dataset){
+  print(head(dataset,3))
+  print(tail(dataset,3))
+}
+
+
+#####################################################################
+
 # Step 1: Loading the required data
 
 data_amzn<- load.data("AMZN.csv", "AMZN")
@@ -345,14 +383,13 @@ data_apple<- load.data("AAPL.csv","AAPL")
 data_close<- cbind(data_amzn$AMZN.Close, data_gog$GOOG.Close,
                    data_spy$SPY.Close, data_apple$AAPL.Close)
 
+
 names(data_close)<- c("AMZN","GOOG","SPY","AAPL") # used to rename the variables
 
-head.tail(data_close) 
+head(data_close) 
 
 ## using cbind() here works seamlessly as these securities have the same
 ## number of observations.
-
-
 
 
 ## Step 3: Normalize Prices
@@ -362,20 +399,31 @@ head.tail(data_close)
 ## This makes it hard to compare how well the different securities performed
 
 
+## I could not find any solutions regarding the normalize() function so, i am
+## now trying a different method
 
 
+install.packages("PerformanceAnalytics")
+library("PerformanceAnalytics")
+
+head(data_close)
+
+# Simple returns
+
+returns<- Return.calculate(data_close)
+head(returns)
+
+# Compounded returns (How much will the $ 1 investment be over time?)
+
+returns<- na.omit(Return.calculate(data_close))
+comp_wealth<- cumprod(1+returns)
+plot(comp_wealth, main="Growth of $1 investment", legend.loc="topleft")
 
 
+## Alternative way to draw this plot: 4 mini plots
 
 
-
-
-
-
-
-
-
-
+### I have to try this again sometime in the future ###################
 
 
 
