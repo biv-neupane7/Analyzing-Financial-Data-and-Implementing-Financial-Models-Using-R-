@@ -5,6 +5,7 @@ setwd("C:/Users/user/Documents/Coursera/Rbook/data")
 file.exists("C:/Users/user/Documents/Coursera/Rbook/data/AMZN.csv")
 
 library(quantmod)
+library("gridExtra")
 
 ## Writing a function imports the CSV file for prices of stocks and ETFs 
 ## we obtained from Yahoo Finance. In addition to that, it will also
@@ -408,6 +409,7 @@ library("PerformanceAnalytics")
 
 head(data_close)
 
+class(data_close)
 # Simple returns
 
 returns<- Return.calculate(data_close)
@@ -416,14 +418,131 @@ head(returns)
 # Compounded returns (How much will the $ 1 investment be over time?)
 
 returns<- na.omit(Return.calculate(data_close))
-comp_wealth<- cumprod(1+returns)
-plot(comp_wealth, main="Growth of $1 investment", legend.loc="topleft")
+comp_wealth<- 1000*(cumprod(1+returns))
+plot(comp_wealth, main="Growth of $1000 investment", legend.loc="topleft")
 
 
 ## Alternative way to draw this plot: 4 mini plots
 
 
-### I have to try this again sometime in the future ###################
+fig1<- ggplot(comp_wealth, aes(x=Index, y=comp_wealth$AMZN))+ geom_line()+
+  labs(y="Final wealth", x="Date") + ggtitle("AMZN Growth of $1000 2014-2019")
+
+fig2<-ggplot(comp_wealth, aes(x=Index, y=comp_wealth$GOOG)) + geom_line()+
+  labs(y="Final wealth", x="Date") + ggtitle("GOOGLE Growth of $1000 2014-2019")
+
+fig3<-ggplot(comp_wealth, aes(x=Index, y=comp_wealth$AAPL)) + geom_line()+
+  labs(y="Final wealth", x="Date") + ggtitle("S&P 500 Growth of $1000 2014-2019")
+
+fig4<-ggplot(comp_wealth, aes(x=Index, y=comp_wealth$SPY)) + geom_line()+
+  labs(y="Final wealth", x="Date") + ggtitle("Growth of $1000 2014-2019")
+
+# Finally putting the 4 plots together
+ 
+grid.arrange(fig1,fig2, fig3, fig4, ncol=2, nrow=2)
+
+
+#######################################################################
+
+
+# 1.6 Simple and Exponential Moving Averages
+
+
+ma20d<- rollapply(data_amzn$AMZN.Close, 20, mean) 
+                  # rollapply() function repeatedly applies the mean () func
+                # over 20 day window
+ema20d<- EMA(data_amzn$AMZN.Close, n=20)
+data<- cbind(data_amzn$AMZN.Close, ma20d, ema20d)
+names(data)<- c("Price", "MA_20","EMA_20")
+data[18:22,]
+
+
+# Subset Data to 2019 using xts style date subsetting
+
+data_2019<- data["2019-01-01/2019-12-31"]
+head(data_2019)
+
+
+# Plotting the MA and EMA
+
+dt<- index(data_2019)
+(y.range<- range(data_2019))
+plot(x=dt, y= data_2019$Price, xlab="Date",ylab="Price", ylim=y.range,
+     type="l",lwd=2, main="AMZN price and 20 day MAs")
+lines(x=dt, y=data_2019$MA_20, col="blue")
+lines(x=dt, y=data_2019$EMA_20, col="red")
+legend("bottomright", c("AMZN","Simple MA","Exponential MA"), lwd = c(3,2,1),
+       col = c("black","blue","red"))
+
+
+########################################################################
+
+# 1.7 Volume-Weighted Average Price for the last 30 days of 2019
+
+
+# Step 1: Subset Data to Last 30 Trading Days
+
+(thirty<- nrow(data_amzn)-30+1)
+
+last30<- data_amzn[thirty:nrow(data_amzn), 4:5] 
+head.tail(last30)
+
+# Step 2: Calculate the Weighted Volume
+
+tot<- sum(last30$AMZN.Volume)
+
+last30$vol_weight<- last30$AMZN.Volume/tot
+head(last30)
+
+# Step 3: Calculated the Weighted Price
+
+last30$price.wt<- last30$vol_weight * last30$AMZN.Close
+
+head.tail(last30)
+
+# Step 4: Calculate the VWAP
+
+(vwap<-sum(last30$price.wt))
+
+#########################################################################
+
+# 1.8 Plotting a Candlestick Chart
+
+
+### We can use chartSeries() in the quantmod package to create a candlestick 
+### chart. However, we would first have to convert the data into an 
+### open-high-low-close (OHLC) object.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
