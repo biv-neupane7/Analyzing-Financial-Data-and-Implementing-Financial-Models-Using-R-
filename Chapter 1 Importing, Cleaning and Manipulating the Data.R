@@ -515,6 +515,94 @@ head.tail(last30)
 
 
 
+# Step 1: Setup Monthly Data
+
+ohlc<- load.data("AMZN.csv","AMZN")
+ohlc<- to.monthly(ohlc)
+
+
+    ## dropped the row for December 2014 (Row 1) and the adjusted close 
+    ## variable (Column 6).
+
+ohlc<- ohlc[-1,-6]
+class(ohlc) # Its xts zoo right now, but we wanna convert the object from 
+            # xts zoo to "quantmod.ohlc" object
+head(ohlc)
+
+
+# Step 2: Convert to an OHLC Object
+
+amzn.ohlc<- as.quantmod.OHLC(ohlc, col.names = c("Open","High","Low","Close",
+                                            "Volume"))
+class(amzn.ohlc) # As we can see now that the object type has changed from 
+            # "xts zoo" to "quantmode.ohlc zoo"
+
+
+# Step 3: Plot OHLC Data
+
+
+chartSeries(amzn.ohlc, theme="white",name="AMZN OHLC")
+
+
+####################################################################
+
+# 2-Axis Price and Volume Chart
+
+
+# Because of the different scales of the price and
+# volume, we cannot only use one axis.
+
+head(data_amzn)
+
+
+prc_vol= data_amzn[-1, c(4:5)] # selecting only the required components of data
+class(prc_vol)
+
+date=as.Date(index(prc_vol)) # Creating new variable called "date"
+
+prc_vol= data.frame(date, prc_vol) # Converting to df
+
+names(prc_vol)<- c("Date","Price","Volume") # Changing column names
+
+prc_vol$Volume<- prc_vol$Volume/1000000 # Changing the volume data into millions
+
+rownames(prc_vol)<- seq(1, nrow(prc_vol)) # Changing the rownames
+
+range(prc_vol$Price)
+
+
+############### I AM BORED ! LETS MOVE TO SOMETHING ELSE ##########
+
+
+########################## Security's returns
+
+## 2.1 Price Returns
+
+
+
+head(data_apple)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
