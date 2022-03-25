@@ -294,16 +294,61 @@ head(rets.monthly)
 # 2.8 Comparing Performance of Multiple Securities
 
 
+data.aapl<- data_apple
+data.amzn<-load.data("AMZN.csv","AMZN")
+data.spy<- load.data("SPY.csv","SPY")
+data.goog<- load.data("GOOG.csv","GOOG")
+
+# In the book, there are two ways: Normalizing returns and cumulative
+# returns. I am only gonna do the cum returns as i have alredy done
+# the normalizing part earlier
+
+rets.amzn<- 1 + Delt(data.amzn$AMZN.Adjusted)
+rets.aapl<- 1 + Delt(data.aapl$AAPL.Adjusted)
+rets.goog<- 1 + Delt(data.goog$GOOG.Adjusted)
+rets.spy<- 1 + Delt(data.spy$SPY.Adjusted)
+
+# concatenating all the variables in a single xts series
+
+rets<- cbind(rets.amzn, rets.aapl, rets.goog, rets.spy)
+head(rets)
+
+# Changing the column names
+
+names(rets)<- c("AMZN", "AAPL", "GOOG","SPY")
+
+###### Step 2: Replace December 31, 2014 Value with $1
 
 
+rets[1,]<- c(1,1,1,1)
+
+### Step 3: Cumulate the Returns of Each Security
+
+cum.rets<- cumprod(rets)
+head(cum.rets)
+
+## Step 4: Plot the Cumulative Returns
 
 
+y.range<- range(cum.rets)
 
 
-
-
-
-
+plot(x=index(cum.rets$AAPL),
+     y=cum.rets$AAPL,
+     ylim=y.range,
+     xlab="Date",
+     ylab="Wealth",
+     type="l",
+     lwd=3,
+     main="Value of $1 Investment")
+lines(x=index(cum.rets),y=cum.rets$AMZN, col="red")
+lines(x=index(cum.rets),y=cum.rets$GOOG, col="darkgreen")
+lines(x=index(cum.rets),y=cum.rets$SPY, col="blue")
+abline(h=1)
+legend("topleft", 
+       c("APPLE", "AMAZON","GOOGLE","S&P 500"),
+       col=c("black", "red", "darkgreen","blue"),
+       lwd=c(4,3,2,1))
 
 
 
