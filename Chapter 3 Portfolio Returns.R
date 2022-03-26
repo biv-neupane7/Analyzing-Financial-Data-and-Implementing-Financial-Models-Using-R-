@@ -111,6 +111,175 @@ cum.ret # This is the column vector i already have
                           # instead of a number
 
 
+##########################################################################
+
+
+# 3.3 Constructing Benchmark Portfolio Returns
+
+
+################################### 3.3.1 Quarterly Returns the Long Way
+
+# Step 1: Calculate 1Q 2019 Cumulative Return
+
+# We first subset the returns data to only include returns from 
+# January 1, 2019 to March 31, 2019 (i.e., the first quarter
+#  of 2019).
+
+
+rets.q1<- rets["2019-01-01/2019-03-31"]
+head(rets.q1)
+
+    # Gross daily returns for the 1st quarter of 2019
+
+grets.q1<- 1+ rets.q1
+tail(grets.q1)
+
+    # Net daily cumulative returns
+
+
+crets.q1<- apply(grets.q1, 2, cumprod) # apply() to apply cumprod() to each 
+                                    # of the three columns in grets.q1.
+                                # 2 indicates that the function shall be 
+                            # applied to the columns
+
+
+    # Making it NET
+
+(crets.q1<- crets.q1[nrow(crets.q1), ]-1)
+
+
+# This process is again applied to each of the remaining 3 quarters.
+# Hence, it is not surprisingly the long way
+
+# I dont want to do this repitative process again and again. So, lets try 
+# a different approach
+
+
+
+
+# 3.3.2 Quarterly Returns the Shorter Way ##################################
+
+
+## Step 1: Construct Dataset with Quarterly Prices
+
+
+    # Subsetting the daily adjusted prices from each of the stocks
+
+prc.amzn<- amzn$AMZN.Adjusted
+prc.goog<- goog$GOOG.Adjusted
+prc.aapl<- aapl$AAPL.Adjusted
+
+    # Converting the daily prices to quarterly
+
+qtr.amzn<- to.quarterly(prc.amzn)
+qtr.goog<- to.quarterly(prc.goog)
+qtr.aapl<- to.quarterly(prc.aapl)
+
+
+## Step 2: Calculate Quarterly Returns
+
+
+    # Subsetting the Close column and calculating returns for each stock
+
+qtr.rets<- cbind(Delt(qtr.amzn[,4]), Delt(qtr.goog[,4]),
+                 Delt(qtr.aapl[,4]))
+
+    # Changing column names
+
+names(qtr.rets)<- c("AMZN","GOOG","AAPL")
+
+    # Removing the 1st row
+
+qtr.rets<- qtr.rets[-1,]
+
+tail(qtr.rets, 4)
+
+
+# 3.3.3 Equal-Weighted Portfolio ########################################
+
+
+# we assume that the investment is made on December 31, 2018 and we want to 
+# know what the cumulative return would be at December 31, 2019.
+
+
+
+## Step 1: Calculate the Value of the Portfolio at the End of 1Q 2019
+
+    ## creating a variable for the initial investment
+
+ew.i0<- 1000
+
+    ## grow that amount by the average return for the securities in the 
+    ## portfolio. Since we have 3 securities in our port, each gets 33.33% 
+    ## weight
+
+    ## This 33.33 % weight is equivalent to just calculating the avg 
+
+(ew.i1<- ew.i0 * (1+ mean(crets.q1)))
+
+
+## Step 2: Follow the same procedure and calculate value for other quarters
+## as well
+
+
+# (ew.i2<- ew.i1 * (1+mean(crets.q2))) and so on....
+
+
+###### 3.3.4 Value-Weighted Portfolio ###################################
+
+
+# Step 1: Calculate Weights Based on Market Cap as of December 31, 2018
+
+
+    # market cap of securities
+
+mcl.amzn<- 737.47
+mcl.goog<- 720.32
+mcl.aapl<- 746.08
+
+    # Total market cap
+
+(mcl.tot<- sum(mcl.amzn, mcl.goog, mcl.aapl))
+
+    # weights 
+
+w1.amzn<- mcl.amzn/mcl.tot
+w1.goog<- mcl.goog/mcl.tot
+w1.aapl<- mcl.aapl/mcl.tot
+
+
+# Step 2: Use Weights Calculated Above to Determine How Much Is Invested in
+# Each Security
+
+vw.i0<- 1000
+
+(vw.i0.amzn<- vw.i0 * w1.amzn)
+(vw.i0.goog<- vw.i0 * wl.goog)
+(vw.i0.aapl<- vw.i0 * wl.aapl)
+
+
+# Step 3: Calculate Value of Portfolio as of March 31, 2019
+
+
+(vw.i1.amzn<- vw.i0.amzn * (1 + crets.q1[1]))
+
+(vw.i1.goog<- vw.i0.amzn * (1+ crets.q1[2]))
+
+(vw.i1.aapl<- vw.i0.aapl * (1+ crets.q1[3]))
+
+
+(vw.i1<- sum(vw.i1.amzn, vw.i1.goog, vw.i1.aapl))
+
+
+# Follow the same procedure as above for the other quarters
+
+
+
+
+
+
+
+
 
 
 
